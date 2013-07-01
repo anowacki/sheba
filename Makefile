@@ -42,9 +42,9 @@ EXECDIR=~/Applications/sheba
 ## -- flags which work for gfortran on Mac (and probably Linux)
 FC = gfortran 
 # Production
-FFLAGS = -O2
+FFLAGS = -O3
 # Debug
-FFLAGS = -fcheck=bounds -C
+# FFLAGS = -fcheck=bounds -C
 # additional flags for .f/.F files 
 F77FLAGS = -w
 # additional flags for .f90/.F90 files 
@@ -94,7 +94,7 @@ all:$(EXECDIR)/sheba_exec \
       $(EXECDIR)/sheba_stack\
       $(EXECDIR)/sheba_stack_source\
       $(EXECDIR)/sheba_stack_ray\
-		$(EXECDIR)/stack_wgtcalc
+      $(EXECDIR)/stack_wgtcalc
       
 #
 #     SHEBA EXECUTABLE
