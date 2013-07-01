@@ -3,6 +3,7 @@
 *   SHEBA macro
 *-------------------------------------------------------------------------------
 *   (c) James Wookey 2004-2010
+*       Additions by A. Nowacki 2009-10
 *-------------------------------------------------------------------------------
 *	 CVS: $Revision: 1.9 $ $Date: 2011/02/11 13:38:11 $
 *
@@ -18,7 +19,7 @@
 * Optional parameters:
 *  comps [BHE BHN BHZ]  - suffix to file names 
 *                         (so files are xxxx.e xxxx.n xxxx.z)
-*  plot [(yes)|no]      - produce postscript versions of the reult plots
+*  plot [(yes)|no]      - produce postscript versions of the result plots
 *                               
 *  xlim [(off)|t1 t2]   - *plot* window limits, defaults to whole trace
 *  pick [(maybe)|yes]   - (re)pick analysis window limits
@@ -32,7 +33,7 @@
 *  max_tlag [(4)|x]     - Maximum time-lag in grid search.
 *  option [(e)|t]       - Grid search parameter, second (e)igenvalue or
 *                         (t)ransverse energy. 
-*  srcpol [(baz)|x]     - In conjunction with option t, the inital shear-wave
+*  srcpol [(baz)|x]     - In conjunction with option t, the initial shear-wave
 *                         polarisation. The default is for use with SKS, i.e.
 *                         the back-azimuth.
 *  psviewer [(gv)|prog] - Program called to display postscript files.
@@ -41,8 +42,11 @@
 *  wdev [(x)|mac]       - Windowing device
 *  usett [(yes)|no]     - disable ttsac as plotting script. This is useful
 *                         in situations where non-teleseismic data is being
-*                         used, trace headers requires for ttsac are missing, or
+*                         used, trace headers required for ttsac are missing, or
 *                         systems where ttsac is unavailable
+* AJN additions:
+*  cmtpol [yes|(no)]    - Plot the CMT-predicted source polarisation
+*                         on the corrected PM plot.
 *
 *  NOTE: Orientation of input data. The input data must *appear* to form an 
 *        orthogonal set, with two horizontals (cmpinc both 90, cmpaz 90 degrees
@@ -59,15 +63,20 @@
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 *-------------------------------------------------------------------------------
-$keys file comps plot xlim pick corr src_corr scs nwind max_tlag option srcpol psviewer batch wdev usett 
+*-------------------------------------------------------------------------------
+* Modified AJN 11/2009 to include plotting of back-projecting initial
+*  polarisations of fast direction, looking up event in CMT catalogue.
+* Requires the CMT2pcf script be in the user's $PATH.
+*-------------------------------------------------------------------------------
+$keys file comps plot xlim pick corr src_corr scs nwind max_tlag option srcpol psviewer batch wdev usett orcheck cmtpol
 $default comps BHE BHN BHZ
-$default plot no
+$default plot yes
 $default xlim off
 $default pick yes
 $default corr no
 $default src_corr no
 $default scs no
-$default nwind one
+$default nwind 10 10
 $default max_tlag 4.0
 $default option e
 $default srcpol baz
@@ -75,6 +84,8 @@ $default psviewer gv
 $default batch no
 $default wdev x
 $default usett yes
+$default cmtpol no
+
 *
 message "---------------------------------------------"
 message "-         S H E B A - Version 0.997         -"
@@ -369,6 +380,9 @@ xvport 0.10 0.45
 r $file$.xy1 
 setbb vmax (MAXIMUM &1,xmaximum &1,ymaximum )
 setbb vmin (MINIMUM &1,xminimum &1,yminimum )
+* AJN: This line centres the PM in the plot
+setbb vmax (MAXIMUM %vmax (ABSOLUTE %VMIN% ) )
+evaluate to vmin 0 - %vmax%
 xlim %vmin %vmax ; ylim %vmin %vmax
 
 p1
@@ -378,9 +392,22 @@ xvport 0.55 0.90
 r $file$.xy2 
 setbb vmax (MAXIMUM &1,xmaximum &1,ymaximum )
 setbb vmin (MINIMUM &1,xminimum &1,yminimum )
+* AJN: This line centres the PM in the plot
+setbb vmax (MAXIMUM %vmax (ABSOLUTE %VMIN% ) )
+evaluate to vmin 0 - %vmax%
 xlim %vmin %vmax ; ylim %vmin %vmax
 p1
 xlim off; ylim off
+
+* AJNADDITION
+* Add the expected particle motion given a known CMT solution...
+if no ne $cmtpol$
+	sc CMT2pcf $file$ &1,nzyear &1,nzjday &1,nzhour &1,nzmin &1,nzsec &1,evla &1,evlo &1,evdp &1,gcarc &1,az &1,baz& 
+	vspace 1.0
+	plotc border off replay file $file$.CMTpm
+	vspace full
+	sc rm -rf $file$.CMTpm.pcf
+endif
 
 endframe ; 
 if no ne $src_corr
@@ -397,7 +424,7 @@ endif
  message "-> Error surface and cluster analysis, q in window to exit ..."
  sc sheba_plot_errclu.gmt $file$
  if $plot$ eq no
-       sc $psviewer$ --orientation=landscape --scale=-2 $file$_errclu.eps
+       sc $psviewer$ --orientation=landscape --scale=2 $file$_errclu.eps 2>/dev/null
  endif
 
 
@@ -414,7 +441,7 @@ if $plot$ eq yes
       sc sheba_combine_plots.csh $file$
       sc rm -f split_inp.ps split_rot.ps split_wav.ps
       if $batch$ eq no
-            sc $psviewer$ --media=A4 --orientation=landscape --scale=-2 $file$_result.ps
+            sc $psviewer$ --media=A4 --orientation=landscape --scale=-2 $file$_result.ps  2>/dev/null &
       endif
 
 *     backup the results file

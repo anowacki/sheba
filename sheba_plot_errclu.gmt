@@ -67,4 +67,4 @@ psxy fast_soln.sheba_tmp -JX -R -Sx0.2 -W10/0/0/255 -G0/0/255 -O >> $1_errclu.ep
 rm -f *.sheba_tmp
 endif
 
-#rm -f data.grd
+rm -f data.grd

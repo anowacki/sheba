@@ -32,8 +32,8 @@
 #===============================================================================
 
 # Delivery path
-MACRODIR=/usr/local/sac/macros
-EXECDIR=/usr/local/sac/macros
+MACRODIR=~/Applications/sacmacros
+EXECDIR=~/Applications/sheba
 
 #===============================================================================
 # Compiler and options:
@@ -86,11 +86,14 @@ F90SAC = f90sac_distrib.o
 all:$(EXECDIR)/sheba_exec \
       $(EXECDIR)/sheba_plot_errclu.gmt \
       $(EXECDIR)/sheba_plot_stackerr.gmt \
+      $(EXECDIR)/sheba_plot_stackerr_source.gmt \
       $(EXECDIR)/sheba_combine_plots.csh \
       $(EXECDIR)/cleansheba \
       $(MACRODIR)/split_sheba\
       $(MACRODIR)/sheba\
       $(EXECDIR)/sheba_stack\
+      $(EXECDIR)/sheba_stack_source\
+      $(EXECDIR)/sheba_stack_ray\
 		$(EXECDIR)/stack_wgtcalc
       
 #
@@ -101,6 +104,12 @@ $(EXECDIR)/sheba_exec:${F90SAC} ${MODULES} sheba_main.o ${SUBROUTINES}
 #
 $(EXECDIR)/sheba_stack:${F90SAC} ${MODULES} sheba_stack.o ${SUBROUTINES}
 	$(FC) $(FFLAGS) -o $(EXECDIR)/sheba_stack ${F90SAC} ${MODULES} sheba_stack.o ${SUBROUTINES}
+
+$(EXECDIR)/sheba_stack_source:${F90SAC} ${MODULES} sheba_stack_source.o ${SUBROUTINES}
+	$(FC) $(FFLAGS) -o $(EXECDIR)/sheba_stack_source ${F90SAC} ${MODULES} sheba_stack_source.o ${SUBROUTINES}
+
+$(EXECDIR)/sheba_stack_ray:${F90SAC} ${MODULES} sheba_stack_ray.o ${SUBROUTINES}
+	$(FC) $(FFLAGS) -o $(EXECDIR)/sheba_stack_ray ${F90SAC} ${MODULES} sheba_stack_ray.o ${SUBROUTINES}
 
 $(EXECDIR)/stack_wgtcalc:stack_wgtcalc.o 
 	$(FC) $(FFLAGS) -o $(EXECDIR)/stack_wgtcalc stack_wgtcalc.o
@@ -114,6 +123,9 @@ f90sac_distrib.o: f90sac_distrib.F90
 #
 $(EXECDIR)/sheba_plot_stackerr.gmt:sheba_plot_stackerr.gmt
 	chmod +x sheba_plot_stackerr.gmt; \cp sheba_plot_stackerr.gmt $(EXECDIR)
+
+$(EXECDIR)/sheba_plot_stackerr_source.gmt:sheba_plot_stackerr_source.gmt
+	chmod +x sheba_plot_stackerr_source.gmt; \cp sheba_plot_stackerr_source.gmt $(EXECDIR)
 
 $(EXECDIR)/sheba_plot_errclu.gmt:sheba_plot_errclu.gmt
 	chmod +x sheba_plot_errclu.gmt; \cp sheba_plot_errclu.gmt $(EXECDIR)

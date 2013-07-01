@@ -228,7 +228,7 @@ c  ** interpolate error surface in tlag direction **
 
 c  ** find the interpolated minimum position **
       call zerror_min(error_int,np1,np2int,ifast,itlag,lambda2_min)
-      
+
 c  ** convert indices itlag/ifast into tlag and fast **
       tlag  = delta*real(itlag_step*(itlag-1))/real(f)
       fast = -90. + 180.*real(ifast-1)/real(np1-1)

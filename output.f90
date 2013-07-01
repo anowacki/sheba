@@ -181,16 +181,16 @@
 !        need to adjust the maximum slightly for the GMT code to work
 
 !         write(99,'(a,f10.6)') 'set TLAG_SCALE =',config % tlag_scale
-         write(99,'(a,f14.10)') 'set TLAG_SCALE =', &
+         write(99,'(a,f14.10)') 'set TLAG_SCALE = ', &
             real(np2int-1) * event % error_grid_tlag_int
 
-         write(99,'(a,f10.6)') 'set TLAG_MAJORTICK =',tlag_majortick
-         write(99,'(a,f10.6)') 'set TLAG_MINORTICK =',tlag_minortick
+         write(99,'(a,f10.6)') 'set TLAG_MAJORTICK = ',tlag_majortick
+         write(99,'(a,f10.6)') 'set TLAG_MINORTICK = ',tlag_minortick
          write(99,'(a,f14.10)') 'set ERROR_GRID_TLAG_INT =', &
                      event % error_grid_tlag_int
-         write(99,'(a,f10.4)') 'set WBEG =', event % wbeg 
-         write(99,'(a,f10.4)') 'set WEND =', event % wend 
-         write(99,'(a,i10)') 'set IBEST =', event % ibest 
+         write(99,'(a,f10.4)') 'set WBEG = ', event % wbeg 
+         write(99,'(a,f10.4)') 'set WEND = ', event % wend 
+         write(99,'(a,i10)') 'set IBEST = ', event % ibest 
            
       close(99)
       fname = trim(config % fname_base) // '.scm'

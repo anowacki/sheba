@@ -150,6 +150,9 @@ c  ** cross-corr data
 c  ** NULL function (AW)      
       real Quality
       real NULLCRITERION ! Null criterion function
+cAJN_EDIT: Add az and baz variables for writing .lam2 files
+      real az,baz
+cAJN_EDIT_END
 
       write(iulog,*) 'Running multiple window shear-wave splitting' 
       write(*,*) '> Running multiple window shear-wave splitting' 
@@ -432,8 +435,14 @@ c      print*,f,itlag_step
       write(lu,'(2i5,a)') np1,np2int,'   % NPfast,NPtlag'
       write(lu,'(f12.4,a)') event % error_grid_tlag_int,'   % dtlag'
       write(lu,'(i5,a)') ndf,'   % NDF'
-      write(lu,'(f12.4,a)') snr,'   % SNR'
-      
+cAJN_EDIT: addition: write out az,baz as well (from event_info module)
+c          to .lam2 file--this is used by sheba_stack_source.
+      baz = event % baz
+      az = event % az
+c      write(lu,'(f12.4,f5.1,f5.1,a)') snr,az,baz,'   % SNR az baz'
+      write(lu,'(f0.4,a,f0.1,a,f0.1,a)') snr,' ',az,' ',baz,
+     >  ' % SNR,az,baz'
+cAJN_EDIT_END
       write(fmt,'(a1,i5.5,a)') '(',np2int,'f12.4)'
 		do i=1,np1
 		     write(lu,fmt) (error_int(i,j),j=1,np2int) 
