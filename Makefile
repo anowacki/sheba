@@ -86,6 +86,7 @@ F90SAC = f90sac_distrib.o
 all:$(EXECDIR)/sheba_exec \
       $(EXECDIR)/sheba_plot_errclu.gmt \
       $(EXECDIR)/sheba_plot_stackerr.gmt \
+	  $(EXECDIR)/sheba_plot_stackerr_ray.gmt \
       $(EXECDIR)/sheba_plot_stackerr_source.gmt \
       $(EXECDIR)/sheba_combine_plots.csh \
       $(EXECDIR)/cleansheba \
@@ -123,6 +124,9 @@ f90sac_distrib.o: f90sac_distrib.F90
 #
 $(EXECDIR)/sheba_plot_stackerr.gmt:sheba_plot_stackerr.gmt
 	chmod +x sheba_plot_stackerr.gmt; \cp sheba_plot_stackerr.gmt $(EXECDIR)
+
+$(EXECDIR)/sheba_plot_stackerr_ray.gmt:sheba_plot_stackerr_ray.gmt
+	chmod +x sheba_plot_stackerr_ray.gmt; \cp sheba_plot_stackerr_ray.gmt $(EXECDIR)
 
 $(EXECDIR)/sheba_plot_stackerr_source.gmt:sheba_plot_stackerr_source.gmt
 	chmod +x sheba_plot_stackerr_source.gmt; \cp sheba_plot_stackerr_source.gmt $(EXECDIR)
