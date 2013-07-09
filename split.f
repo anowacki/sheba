@@ -164,8 +164,9 @@ C     ** Hilbert versions
 
 !     CROSSCORRELATION VALUES	  
       real xc_grid(np1, np2XC),xc_grid_int(np1,np2XCint)
-      integer xcitlag,xcifast,xc_max,itlag_stepXC
+      integer xcitlag,xcifast,itlag_stepXC
       real fastXC,dfastXC, tlagXC,dtlagXC,xcidtlag,xcidfast
+      real xc_max
 
 c  ** calc itlag_step from tlag_scale **
 c  ** itlag_step is the grid spacing in tlag for the grid search **
@@ -229,12 +230,24 @@ c  ** interpolate error surface in tlag direction **
 c  ** find the interpolated minimum position **
       call zerror_min(error_int,np1,np2int,ifast,itlag,lambda2_min)
 
+c  ** a second eigenvalue of exactly zero (which can occur in noise free data)
+c     causes problems. So, set this to a very small value. 
+      if (lambda2_min<=0.0) then
+         lambda2_min = close_to_zero
+      endif   
+
 c  ** convert indices itlag/ifast into tlag and fast **
       tlag  = delta*real(itlag_step*(itlag-1))/real(f)
       fast = -90. + 180.*real(ifast-1)/real(np1-1)
 
 c  ** find the XC maximum
       call zerror_max(xc_grid_int,np1,np2XCint,xcifast,xcitlag,xc_max)
+      
+c  ** deal with the perfect correlation problem (can occur with noise
+c     free synthetics).      
+      if (xc_max>=1.0) then
+         xc_max = close_to_one
+      endif
       
 c  ** convert indices itlag/ifast into tlag and fast **
       tlagXC = delta*real(itlag_stepXC*(xcitlag-1))/real(f)
@@ -268,7 +281,6 @@ c  **  first time lag
       call zlag(xrot,yrot,nwindow,np,itlag,iwextra,
      >               xlag,ylag,noverlap)
 
-      
 c  ** perform any required post-correction      
       if (config % i_src_corr == 1) then
          print*,'running source correction'
@@ -277,32 +289,22 @@ c         print*,tlag,itlag,delta
          
          itlag = nint(config % src_tlag / (delta*1./real(f)) ) 
          
-c         print*,config % src_tlag,itlag,delta,config % src_tlag
          
-         
-         call zrotate2d(xlag,ylag,n,np,
+         call zrotate2d(xlag,ylag,nwindow,np,
      >                   (config % src_fast-fast),xtemp,ytemp)
-         xlag(1:n) = xtemp(1:n) ; ylag(1:n) = ytemp(1:n)
-         call zlag(xlag,ylag,n,np,itlag,iwextra,xtemp,ytemp,noverlap)
-         xlag(1:n) = xtemp(1:n) ; ylag(1:n) = ytemp(1:n)
+         xlag(1:np) = xtemp(1:np) ; ylag(1:np) = ytemp(1:np)
+         
+         call zlag(xlag,ylag,nwindow,np,itlag,
+     >              iwextra,xtemp,ytemp,noverlap)
+         xlag(1:np) = xtemp(1:np) ; ylag(1:np) = ytemp(1:np)
 
-         call zrotate2d(xlag,ylag,n,np,
+         call zrotate2d(xlag,ylag,nwindow,np,
      >                  -(config % src_fast-fast),xtemp,ytemp)
-         xlag(1:n) = xtemp(1:n) ; ylag(1:n) = ytemp(1:n)
+         xlag(1:np) = xtemp(1:np) ; ylag(1:np) = ytemp(1:np)
          
-         ! new itlag 
-         
-c        lag = nint(config % src_lag / delta) 
-c        call zrotate2d(xlag,ylag,n,np,
-c    >                   config % src_fast,xtemp,ytemp)
-c        xlag(1:n) = xtemp(1:n) ; ylag(1:n) = ytemp(1:n)
-c        call zlag(xlag,ylag,n,np,lag,iwextra,xtemp,ylag,noverlap)
-c        xlag(1:n) = xtemp(1:n) ; ylag(1:n) = ytemp(1:n)
       endif 
-      
-      
-      
-C  **       
+            
+C  ** calculate the covariance in the window.       
       call zcovariance(xlag,ylag,noverlap,np,cov)
       call zeigen2x2(cov,lambda1,lambda2,vec1,vec2)
 
@@ -323,10 +325,15 @@ c  ** first rotate into spol-fast (so y is signal and x is noise) **
 c  ** estimate signal to noise ratio *
       call calcsnr(ynoise,xnoise,noverlap,snr)
 
+      print*,'error_int',error_int(1,1)
+
+
 c  ** normalise error surface and calc errors in fast and lag**
       call zerror95(error_int,ndf,lambda2_min,idfast,idtlag)
       dtlag = delta * idtlag * itlag_step / real(f)
       dfast = 180.  * idfast / real(np1-1)
+
+      print*,'error_int',error_int(1,1)
 
 c  ** normalise error surface and calc errors in fast and lag (XC version)
       call zerror95XC(xc_grid_int,ndf,xc_max,xcidfast,xcidtlag)     

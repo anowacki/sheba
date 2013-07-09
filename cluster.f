@@ -443,7 +443,7 @@ c      write(lu,'(f12.4,f5.1,f5.1,a)') snr,az,baz,'   % SNR az baz'
       write(lu,'(f0.4,a,f0.1,a,f0.1,a)') snr,' ',az,' ',baz,
      >  ' % SNR,az,baz'
 cAJN_EDIT_END
-      write(fmt,'(a1,i5.5,a)') '(',np2int,'f12.4)'
+      write(fmt,'(a1,i5.5,a)') '(',np2int,'f14.4)'
 		do i=1,np1
 		     write(lu,fmt) (error_int(i,j),j=1,np2int) 
 		enddo
