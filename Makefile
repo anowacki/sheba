@@ -55,12 +55,20 @@ F90FLAGS =
 #===============================================================================
 
 ## Uncomment for sac/sac2000 (binaries sac files are native endian)
-#F90SAC_FLAGS = -DDISABLE_C_IO
+#F90SAC_FLAGS = 
 
 ## Uncomment for MacSAC (binary sac files are always big-endian)
-F90SAC_FLAGS = -DDISABLE_C_IO -DFORCE_BIGENDIAN_SACFILES 
+F90SAC_FLAGS = -DFORCE_BIGENDIAN_SACFILES 
 
-# Note: f90sac C routines are disabled for sheba; we don't need them.
+#===============================================================================
+# GMT Compatibility options
+#===============================================================================
+
+## gmt prefix (required by some gmt installations)
+GMT_PREFIX = gmt4 
+
+## For traditional gmt installations
+#GMT_PREFIX = 
 
 #===============================================================================
 #===============================================================================
@@ -123,7 +131,7 @@ f90sac_distrib.o: f90sac_distrib.F90
 #     GMT PLOTTING SCRIPTS + OTHER SHELL SCRIPTS
 #
 $(EXECDIR)/sheba_plot_stackerr.gmt:sheba_plot_stackerr.gmt
-	chmod +x sheba_plot_stackerr.gmt; \cp sheba_plot_stackerr.gmt $(EXECDIR)
+	cat sheba_plot_stackerr.gmt | sed 's/X1X/$(GMT_PREFIX)/g' > $(EXECDIR)/sheba_plot_stackerr.gmt; chmod +x $(EXECDIR)/sheba_plot_stackerr.gmt;
 
 $(EXECDIR)/sheba_plot_stackerr_ray.gmt:sheba_plot_stackerr_ray.gmt
 	chmod +x sheba_plot_stackerr_ray.gmt; \cp sheba_plot_stackerr_ray.gmt $(EXECDIR)
@@ -132,7 +140,7 @@ $(EXECDIR)/sheba_plot_stackerr_source.gmt:sheba_plot_stackerr_source.gmt
 	chmod +x sheba_plot_stackerr_source.gmt; \cp sheba_plot_stackerr_source.gmt $(EXECDIR)
 
 $(EXECDIR)/sheba_plot_errclu.gmt:sheba_plot_errclu.gmt
-	chmod +x sheba_plot_errclu.gmt; \cp sheba_plot_errclu.gmt $(EXECDIR)
+	cat sheba_plot_errclu.gmt | sed 's/X1X/$(GMT_PREFIX)/g' > $(EXECDIR)/sheba_plot_errclu.gmt; chmod +x $(EXECDIR)/sheba_plot_errclu.gmt
 
 $(EXECDIR)/sheba_combine_plots.csh:sheba_combine_plots.csh
 	chmod +x sheba_combine_plots.csh; \cp sheba_combine_plots.csh $(EXECDIR)
