@@ -7,6 +7,9 @@ set TMP1 = `mktemp /tmp/sheba_tmp1XXXXXX` && mv "$TMP1" "$TMP1.ps" && set TMP1 =
 set TMP2 = `mktemp /tmp/sheba_tmp2XXXXXX` && mv "$TMP2" "$TMP2.ps" && set TMP2 = "$TMP2.ps"
 set TMP3 = `mktemp /tmp/sheba_tmp3XXXXXX` && mv "$TMP3" "$TMP3.ps" && set TMP3 = "$TMP3.ps"
 
+# tidy up if interrupted
+onintr tidyup
+
 # undo the rotation of the error plots
 pstops -q -pa4 '1:0L' $1_errclu.eps "$TMP1"
 
@@ -20,4 +23,5 @@ pstops -q -pa4 '4:0@0.49(0,0)+1@0.49(0,0.4h)+2@0.5(0.42w,0)+3@0.40(0.5w,0.45h)' 
 \cp "$TMP3" $1_result.ps
 
 # tidy up
-rm -f "$TMP1" "$TMP2" "$TMP3"
+tidyup:
+    rm -f "$TMP1" "$TMP2" "$TMP3"
